@@ -1,2 +1,3 @@
 from keyboards.menu_kb import inline_kb_menu
-from keyboards.num_buttons import inline_kb_num_buttons
+from keyboards import num_buttons
+from keyboards.admin_kb import inline_kb_admin

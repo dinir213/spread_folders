@@ -2,7 +2,8 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from create_bot import bot, storage
 from keyboards import menu_kb, num_buttons
-from data_base import start_db, profile_db
+from keyboards.num_buttons import kb_num_buttons
+from data_base import start_db, profile_db, tov_or_paym_menu_db
 async def menu_profile(call: types.CallbackQuery):
     profile_data = await profile_db.get_profile(call.from_user.id)
     await call.message.edit_text(f'Ваш профиль:\n\nЮзер: @{call.from_user.username}\nID: {call.from_user.id}\nБаланс: {profile_data[2]} руб', reply_markup=menu_kb.inline_kb_back_in_menu)
@@ -12,7 +13,9 @@ async def menu_support(call: types.CallbackQuery):
     await call.message.edit_text(f"По различным вопросам обращайтесь к @gilmanovdin", reply_markup=menu_kb.inline_kb_back_in_menu)
 
 async def menu_add_balance(call: types.CallbackQuery):
-    await call.message.edit_text(f"Для пополнения счета введите суммы, которую хотите пополнить:", reply_markup=num_buttons.inline_kb_num_buttons)
+    await call.message.edit_text(f"Для пополнения счета введите суммы, которую хотите пополнить:", reply_markup=(await kb_num_buttons()))
+    await tov_or_paym_menu_db.input_value_amount_in_menu_payment(call)
+
 
 async def back_in_menu(call: types.CallbackQuery, state=FSMContext):
     if await state.get_data() != None:
