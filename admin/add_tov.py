@@ -67,17 +67,19 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
             await state.update_data({"target_subcategory": click_btn[1]})
             print(f'Метка 0.33: {await state.get_data()}')
             target_subcategory = click_btn[1]
-
+            if data['need_lvl'] == 3:
+                await state.update_data({"now_lvl": (await state.get_data())['now_lvl'] + 1})
+                print(f'Метка Увеличния: {await state.get_data()}')
         elif click_btn[2] == 'position':
             await state.update_data({"target_position": click_btn[1]})
             print(f'Метка 0.67: {await state.get_data()}')
             target_position = click_btn[1]
 
         need_action = data['need_action']
+        now_lvl = (await state.get_data())['now_lvl']
+        print(f'Сейчас now_lvl = {now_lvl}')
 
-
-        # Это второй неудачный код
-        if data['now_lvl'] == 1:
+        if now_lvl == 1:
             print(f'Метка 1: {await state.get_data()}')
             if data['need_lvl'] == 1:
                 await del_category_db(data["target_category"])
@@ -98,7 +100,7 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
 
 
 
-        elif data['now_lvl'] == 2:
+        if now_lvl == 2:
             if data['need_lvl'] == 2 and data['need_action'] == 'add':
                 await call.message.edit_text(f"Введите название подкатегории:\n", reply_markup=inline_kb_add_del_tov_back)
                 await add_del_category.target_category.set()
@@ -121,14 +123,14 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
                 inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db((await state.get_data())['target_category']))
                 await call.message.edit_text(f"Выберете название позиции:\n", reply_markup=inline_kb_all_subcategories)
                 await state.update_data({"now_lvl": 3})
-        elif data['now_lvl'] == 3:
+        elif now_lvl == 3:
             if data['need_action'] == 'add':
                 await call.message.edit_text(f"Введите название ПОЗИЦИИ:\n", reply_markup=inline_kb_add_del_tov_back)
                 await add_del_category.target_category.set()
             elif data['need_action'] == 'del':
-
-                await del_position_db((await state.get_data())['target_subcategory'], click_btn[1])
-                inline_kb_all_position = await print_all_position(await view_all_position_db(data['target_subcategory']))
+                target_subcategory = (await state.get_data())['target_subcategory']
+                await del_position_db(target_subcategory, click_btn[1])
+                inline_kb_all_position = await print_all_position(await view_all_position_db(target_subcategory))
                 await call.message.edit_reply_markup(reply_markup=inline_kb_all_position)
 
 
