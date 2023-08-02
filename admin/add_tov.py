@@ -61,18 +61,17 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
 
         if click_btn[2] == 'category':
             await state.update_data({"target_category": click_btn[1]})
-            # if data['need_lvl'] == 1 and data['need_action'] == 'add':
-            #     await add_del_category.target_category.set()
-            # if data['need_lvl'] == 1 and data['need_action'] == 'del':
-            #     await del_category_db(text)
-            #     await call.message.edit_text(f'Удалена категория с названием {text}', reply_markup=inline_kb_add_del_tov_back)
             print(f'Метка 0: {await state.get_data()}')
+            target_category = click_btn[1]
         elif click_btn[2] == 'subcategory':
             await state.update_data({"target_subcategory": click_btn[1]})
             print(f'Метка 0.33: {await state.get_data()}')
+            target_subcategory = click_btn[1]
+
         elif click_btn[2] == 'position':
             await state.update_data({"target_position": click_btn[1]})
             print(f'Метка 0.67: {await state.get_data()}')
+            target_position = click_btn[1]
 
         need_action = data['need_action']
 
@@ -124,9 +123,13 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
                 await state.update_data({"now_lvl": 3})
         elif data['now_lvl'] == 3:
             if data['need_action'] == 'add':
-                await call.message.edit_text(f"Введите название подкатегории:\n", reply_markup=inline_kb_add_del_tov_back)
+                await call.message.edit_text(f"Введите название ПОЗИЦИИ:\n", reply_markup=inline_kb_add_del_tov_back)
                 await add_del_category.target_category.set()
+            elif data['need_action'] == 'del':
 
+                await del_position_db((await state.get_data())['target_subcategory'], click_btn[1])
+                inline_kb_all_position = await print_all_position(await view_all_position_db(data['target_subcategory']))
+                await call.message.edit_reply_markup(reply_markup=inline_kb_all_position)
 
 
 
