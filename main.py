@@ -13,7 +13,8 @@ menu_collbacks.register_handlers_client(dp)
 num_click_handler.register_handlers_client(dp)
 from payment_process import payment_process
 payment_process.register_handlers_client(dp)
-from admin import admin_panel, add_payment_methods
+from admin import admin_panel, add_payment_methods, add_tov
 admin_panel.register_handlers_client(dp)
 add_payment_methods.register_handlers_client(dp)
+add_tov.register_handlers_client(dp)
 executor.start_polling(dp, skip_updates=True, on_startup=on_startup)

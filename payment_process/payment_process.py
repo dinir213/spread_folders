@@ -44,16 +44,39 @@ async def confirm_payment(call: types.CallbackQuery):
             await edit_profile(call, amount)
             await call.answer('Успешно!')
             await del_payment_values_in_menu_payment(call)
-
             # await update_quantity_lost_accounts() Эта функция необходима для изменения кол-ва оставшившся товаров в таблице товаров
             await call.message.edit_text(f'Ваш баланс был успешно пополнен на {amount} руб\n\nДобро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
         elif payment_status == 'canceled':
             await call.message.edit_text(f'Вы отменили платеж\n Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
             await del_payment_values_in_menu_payment(call)
+    elif payment_method == 'cryptomus':
+        payment_data = await get_payment_values_in_menu_payment(call)
+        print('payment_data: ', payment_data)
+        payment_id = payment_data[3]
+        amount = payment_data[1]
+        payment_sing = payment_data[4]
+        order_id = payment_data[5]
+        payment_status = await payment_json_requests.check_payment_cryptomus(payment_id, order_id)
+        payment_status = 'paid'
+        if payment_status == 'check':
+            try:
+                await call.message.edit_text('Для подтверждения платежа нажмите на кнопку "Оплачено" еще раз через 10 секунд', reply_markup=(await kb_check_payment_buttons(payment_method)))
+            except:
+                pass
+        elif payment_status == 'paid':
+            await call.message.edit_text(f'Ваш баланс был успешно пополнен на {amount} руб\n\nДобро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
+            await edit_profile(call, amount)
+            print(f'user_id: {call.from_user.id}')
+            await call.answer('Successfully!')
+            await del_payment_values_in_menu_payment(call)
+
+            # await update_quantity_lost_accounts()
+        elif payment_status == 'cancel':
+            await call.message.edit_text(f'Вы отменили платеж\n Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
+            await del_payment_values_in_menu_payment(call)
     elif payment_method == 'back':
         await del_payment_values_in_menu_payment(call)
-        await call.message.edit_text(f'Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:',
-                                     reply_markup=menu_kb.inline_kb_menu)
+        await call.message.edit_text(f'Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
 
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(get_check, text_startswith="getcheck_")
