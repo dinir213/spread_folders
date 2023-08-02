@@ -1,8 +1,9 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from keyboards.admin_kb import inline_kb_add_del_tov, inline_kb_add_del_tov_back, print_all_categories, print_all_subcategories, print_all_position
+from keyboards.admin_kb import inline_kb_add_del_tov, inline_kb_add_del_tov_back, print_all_categories
 from data_base.admin_db import add_category_db, del_category_db, view_all_categories_db, add_subcategory_db, del_subcategory_db, view_all_subcategories_db, add_position_db, view_all_position_db, del_position_db
+import re
 
 class add_del_category(StatesGroup):
     need_action = State()
@@ -36,15 +37,14 @@ async def add_del_tov(call: types.CallbackQuery, state: FSMContext):
 
         if data['need_lvl'] == 1:
             if data['need_action'] == 'del':
-                inline_kb_all_categories = await print_all_categories(await view_all_categories_db())
+                inline_kb_all_categories = await print_all_categories(await view_all_categories_db(), 'category')
                 await call.message.edit_text(f"Выберете название категории:\n", reply_markup=inline_kb_all_categories)
             elif data['need_action'] == 'add':
                 await call.message.edit_text(f"Введите название категории:\n", reply_markup=inline_kb_add_del_tov_back)
                 await add_del_category.target_category.set()
         if data['need_lvl'] == 2 or data['need_lvl'] == 3:
-            inline_kb_all_categories = await print_all_categories(await view_all_categories_db())
+            inline_kb_all_categories = await print_all_categories(await view_all_categories_db(), 'category')
             await call.message.edit_text(f"Выберете название категории:\n", reply_markup=inline_kb_all_categories)
-
     print(f'Метка -0: {await state.get_data()}')
 
 
@@ -93,7 +93,7 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
             elif (data['need_lvl'] == 2 and data['need_action'] == 'del') or data['need_lvl'] == 3:
                 # print(f"ЭТо{(await state.get_data())['target_category']}")
 
-                inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db((await state.get_data())['target_category']))
+                inline_kb_all_subcategories = await print_all_categories(await view_all_subcategories_db((await state.get_data())['target_category']), 'subcategory')
                 await call.message.edit_text(f"Выберете название подкатегории:\n", reply_markup=inline_kb_all_subcategories)
                 await state.update_data({"now_lvl": 2})
                 print(f'Метка 1.5: {await state.get_data()}')
@@ -104,14 +104,12 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
             if data['need_lvl'] == 2 and data['need_action'] == 'add':
                 await call.message.edit_text(f"Введите название подкатегории:\n", reply_markup=inline_kb_add_del_tov_back)
                 await add_del_category.target_category.set()
-                # inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db(data['target_category']))
-                # await call.message.edit_reply_markup(reply_markup=inline_kb_all_subcategories)
                 print(f'Метка 2: {await state.get_data()}')
 
             elif data['need_lvl'] == 2 and data['need_action'] == 'del':
                 print(f'Метка 3: {await state.get_data()}')
                 await del_subcategory_db((await state.get_data())['target_category'], (await state.get_data())['target_subcategory'])
-                inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db(data['target_category']))
+                inline_kb_all_subcategories = await print_all_categories(await view_all_subcategories_db(data['target_category']), 'subcategory')
                 await call.message.edit_reply_markup(inline_kb_all_subcategories)
 
             elif data['need_lvl'] == 3 and data['need_action'] == 'add':
@@ -120,93 +118,28 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
 
             elif data['need_lvl'] == 3 and data['need_action'] == 'del':
                 print(f'Метка 5: {await state.get_data()}')
-                inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db((await state.get_data())['target_category']))
-                await call.message.edit_text(f"Выберете название позиции:\n", reply_markup=inline_kb_all_subcategories)
+                # inline_kb_all_subcategories = await print_all_categories(await view_all_subcategories_db((await state.get_data())['target_category']), 'subcategory')
+                # await call.message.edit_text(f"Выберете название позиции:\n", reply_markup=inline_kb_all_subcategories)
                 await state.update_data({"now_lvl": 3})
+                await call.message.edit_text(f"Введите номер позиции, который желаете удалить:\n")
+
         elif now_lvl == 3:
             if data['need_action'] == 'add':
+                print(f'Метка 6: {await state.get_data()}')
                 await call.message.edit_text(f"Введите название ПОЗИЦИИ:\n", reply_markup=inline_kb_add_del_tov_back)
                 await add_del_category.target_category.set()
             elif data['need_action'] == 'del':
-                target_subcategory = (await state.get_data())['target_subcategory']
-                await del_position_db(target_subcategory, click_btn[1])
-                inline_kb_all_position = await print_all_position(await view_all_position_db(target_subcategory))
-                await call.message.edit_reply_markup(reply_markup=inline_kb_all_position)
+                # target_subcategory = (await state.get_data())['target_subcategory']
+                # await del_position_db(target_subcategory, click_btn[1])
+                # inline_kb_all_position = await print_all_categories(await view_all_position_db(target_subcategory), 'position')
+                await call.message.edit_text(f"Введите номер позиции, который желаете удалить:\n", reply_markup=inline_kb_add_del_tov_back)
+                print(f'Метка 7: {await state.get_data()}')
+                await add_del_category.target_subcategory.set()
 
-
-
-
-        # Это первый нудачный код
-        # print(f'Метка 1: {await state.get_data()}')
-        # await state.get_state()
-        # if data['now_lvl'] == 1:
-        #     print(f'Метка 2: {await state.get_data()}')
-        #
-        #     data['target_category'] = text
-        #     data['now_lvl'] = 2
-        #     if data['need_lvl'] == 1:
-        #         if need_action == 'del':
-        #             print(f'Метка 3: {await state.get_data()}')
-        #
-        #             await del_category_db(text)
-        #             await call.message.edit_text(f'Удалена категория с названием {text}', reply_markup=inline_kb_add_del_tov_back)
-        #
-        # elif data['now_lvl'] == 2:
-        #     print(f'Метка 4: {await state.get_data()}')
-        #
-        #     # data['target_subcategory'] = text
-        #     print('Сабкатегория: ', text)
-        #     print(f'Метка 5: {await state.get_data()}')
-        #
-        #     if data['need_lvl'] == 2:
-        #         if need_action == 'del':
-        #             print(f'Метка 6: {await state.get_data()}')
-        #
-        #             inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db(data['target_category']))
-        #             await call.message.edit_text(f"Выберете название подкатегории:\n", reply_markup=inline_kb_all_subcategories)
-        #             await add_del_category.target_subcategory.set()
-        #
-        #         elif need_action == 'add':
-        #             print(f'Метка 7: {await state.get_data()}')
-        #
-        #             await call.message.edit_text(f"Введите название подкатегории:\n", reply_markup=inline_kb_add_del_tov_back)
-        #             await add_del_category.target_category.set()
-        #             # await add_tov(message=call.message, state=state)
-        #
-        #     elif data['need_lvl'] == 3:
-        #         print(f'Метка 8: {await state.get_data()}')
-        #
-        #         inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db(data['target_category']))
-        #         await call.message.edit_text(f"Выберете название подкатегории:\n", reply_markup=inline_kb_all_subcategories)
-        #         data['now_lvl'] = 3
-        #         print(f'Метка 9: {await state.get_data()}')
-        #
-        #
-        # elif data['now_lvl'] == 3:
-        #     print(f'Метка 10: {await state.get_data()}')
-        #
-        #     # data['target_position'] = text
-        #     print(f'Метка 11: {await state.get_data()}')
-        #
-        #     if data['need_lvl'] == 3:
-        #         if need_action == 'del':
-        #             print(f'Метка 12: {await state.get_data()}')
-        #
-        #             inline_kb_all_position = await print_all_position(await view_all_position_db(data['target_subcategory']))
-        #             # await call.message.edit_text(f"Выберете название позиции:\n", reply_markup=inline_kb_all_position)
-        #             await call.message.edit_text(f"Выберете название позиции:\n", reply_markup=inline_kb_all_position)
-        #
-        #             await add_del_category.target_subcategory.set()
-        #
-        #         elif need_action == 'add':
-        #             print(f'Метка 13: {await state.get_data()}')
-        #
-        #             await call.message.edit_text(f"Введите название позиции:\n", reply_markup=inline_kb_add_del_tov_back)
-        #             # await add_tov(message=call.message, state=state)
-        #             await add_del_category.target_category.set()
 
 async def add_tov(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
+        print('Мы зашли в стейт2')
 
         print(f'Метка 14: {await state.get_data()}\n{message.text}')
 
@@ -218,7 +151,19 @@ async def add_tov(message: types.Message, state: FSMContext):
             await message.answer('Теперь введи цену товара', reply_markup=inline_kb_add_del_tov_back)
             await add_del_category.price.set()
         elif data['need_lvl'] == 3:
-            await add_position_db(data['target_subcategory'], message.text.split(' '))
+            positions = re.split("\s+|\n", message.text)
+            if len(positions) % 3 == 0:
+                cycles = len(positions) / 3
+
+                print(f'len(positions) = {len(positions)}, range(cycles) = {range(int(cycles))}')
+                for i in range(int(cycles)):
+                    print(positions[i+0], positions[i+1], positions[i+2])
+                    await add_position_db(data['target_subcategory'], positions[i+0], positions[i+1], positions[i+2], data['target_category'])
+                    i = i + 3
+                await state.finish()
+            else:
+                await message.answer('Введи еще раз', reply_markup=inline_kb_add_del_tov_back)
+
 
 async def add_tov_fill_price(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -233,17 +178,19 @@ async def add_tov_fill_desc(message: types.Message, state: FSMContext):
         print(f'Метка 15: {await state.get_data()}')
         await add_subcategory_db(data['target_category'], data['target_subcategory'], float(data['price']), data['description'])
         await state.finish()
-async def del_tov(call: types.CallbackQuery, state: FSMContext):
+async def del_tov(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        if data['need_lvl'] == 2:
-            await del_subcategory_db(data['target_category'], data['target_subcategory'])
-            inline_kb_all_subcategories = await print_all_subcategories(await view_all_subcategories_db(data['target_category']))
-            await call.message.edit_reply_markup(inline_kb_all_subcategories)
-        elif data['need_lvl'] == 3:
+        target_position = message.text
+        need_lvl = (await state.get_data())['need_lvl']
+        # if data['need_lvl'] == 2:
+        #     await del_subcategory_db(data['target_category'], data['target_subcategory'])
+        #     inline_kb_all_subcategories = await print_all_categories(await view_all_subcategories_db(data['target_category']), 'subcategory')
+        #     await call.message.edit_reply_markup(inline_kb_all_subcategories)
+        if need_lvl == 3:
             # data['target_position'] = call.data.split('_')[1]
             print(f'Метка 16: {await state.get_data()}')
-
-            await del_position_db(data['target_subcategory'], data['target_position'])
+            print('Мы зашли в стейт1')
+            await del_position_db(data['target_subcategory'], target_position)
             # inline_kb_all_position = await print_all_position(await view_all_position_db(data['target_subcategory']))
             # await call.message.edit_reply_markup(inline_kb_all_position)
 def register_handlers_client(dp: Dispatcher):
@@ -254,4 +201,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(add_tov_fill_price, state=add_del_category.price)
     dp.register_message_handler(add_tov_fill_desc, state=add_del_category.description)
 
-    dp.register_callback_query_handler(del_tov, state=add_del_category.target_subcategory)
+    dp.register_message_handler(del_tov, state=add_del_category.target_subcategory)

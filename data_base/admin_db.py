@@ -42,18 +42,21 @@ async def del_subcategory_db(category_name, subcategory_name):
 async def view_all_position_db(subcategory_name):
     # print(f'Из таблицы категории товара {subcategory_name} хочу взять значение {cur.execute(f"SELECT key1 FROM {subcategory_name}").fetchall()}')
     return cur.execute(f"SELECT key1 FROM {subcategory_name}").fetchall()
-async def add_position_db(subcategory_name, tov_position):
+async def add_position_db(subcategory_name, tov_position0, tov_position1, tov_position2, category_name):
     try:
         maxID = cur.execute(f"SELECT MAX(ID) FROM {subcategory_name}").fetchone()[0]
         maxID = maxID + 1
     except:
         maxID = 1
-    cur.execute(f"INSERT INTO {subcategory_name} VALUES (?, ?, ?, ?)", (maxID, tov_position[0], tov_position[1], tov_position[2]))
+    cur.execute(f"INSERT INTO {subcategory_name} VALUES (?, ?, ?, ?)", (maxID, tov_position0, tov_position1, tov_position2))
+    maxID_category_table = int(cur.execute(f"SELECT tov_count FROM {category_name}").fetchall()[0][0])
+    print('maxid=', maxID_category_table)
+    cur.execute(f"UPDATE {category_name} SET tov_count='{maxID_category_table + 1}' WHERE subcategory_name='{subcategory_name}'")
     db.commit()
-async def del_position_db(subcategory_name, key1):
-    print(key1,type(key1), subcategory_name, type(subcategory_name))
+async def del_position_db(subcategory_name, ID):
+    print(ID,type(ID), subcategory_name, type(subcategory_name))
 
-    print(f'subcategory_name = {subcategory_name},   key1 = {key1}')
-    cur.execute(f"DELETE FROM {subcategory_name} WHERE key1='{key1}'")
+    print(f'subcategory_name = {subcategory_name},   ID = {ID}')
+    cur.execute(f"DELETE FROM {subcategory_name} WHERE ID='{ID}'")
     # cur.execute(f"DROP TABLE IF EXISTS {subcategory_name}")
     db.commit()

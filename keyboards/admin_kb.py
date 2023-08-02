@@ -12,7 +12,6 @@ async def create_kb_payment_methods():
     all_payment_methods = await view_all_payment_methods()
     inline_kb_add_payment_methods = InlineKeyboardMarkup()
     for i in all_payment_methods:
-        print(i)
         if i[2] == '0':
             description_btn = f'❌ {i[0]} Выключен'
         else:
@@ -38,23 +37,9 @@ inline_kb_add_del_tov = InlineKeyboardMarkup()\
     .row(inline_btn_3_add_tov, inline_btn_3_del_tov)\
     .add(back_btn)
 
-async def print_all_categories(all_categories):
+async def print_all_categories(all_categories, code_data_base):
     inline_kb_all_categories = InlineKeyboardMarkup()
     if all_categories != []:
         for category in all_categories:
-            inline_kb_all_categories.add(types.InlineKeyboardButton(text=category[0], callback_data=f'del_{category[0]}_category'))
+            inline_kb_all_categories.add(types.InlineKeyboardButton(text=category[0], callback_data=f'del_{category[0]}_{code_data_base}'))
     return inline_kb_all_categories.add(inline_btn_add_del_tov_back)
-async def print_all_subcategories(all_subcategories):
-    inline_kb_all_categories = InlineKeyboardMarkup()
-    if all_subcategories != []:
-        for subcategory in all_subcategories:
-            inline_kb_all_categories.add(
-                types.InlineKeyboardButton(text=subcategory[0], callback_data=f'del_{subcategory[0]}_subcategory'))
-    return inline_kb_all_categories.add(inline_btn_add_del_tov_back)
-async def print_all_position(all_position):
-    inline_kb_all_position = InlineKeyboardMarkup()
-    if all_position != []:
-        for position in all_position:
-            inline_kb_all_position.add(
-                types.InlineKeyboardButton(text=position[0], callback_data=f'del_{position[0]}_position'))
-    return inline_kb_all_position.add(inline_btn_add_del_tov_back)
