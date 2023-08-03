@@ -27,6 +27,7 @@ async def add_del_tov_main(call: types.CallbackQuery, state: FSMContext):
     await state.finish()
     await call.message.edit_text(f"Выберите, что хотите сделать:\n", reply_markup=inline_kb_add_del_tov)
 async def add_del_tov(call: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     work_config = call.data.split('_') # Приходит ['btn', 'add', 'subcategory'] - первый индекс значит добавление, а второй индекс - подкатегория
     async with state.proxy() as data:
         data['need_action'] = work_config[1]
@@ -213,14 +214,14 @@ async def add_tov_fill_price(message: types.Message, state: FSMContext):
         await add_del_category.description.set()
 async def add_tov_fill_desc(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['description'] = message.text
+        description = message.text
         await state.update_data({"description": message.text})
 
         print(f'Метка 15: {await state.get_data()}')
-        await add_subcategory_db(data['target_category'], data['target_subcategory'], float(data['price']), data['description'], data['img_code'])
+        await add_subcategory_db(data['target_category'], data['target_subcategory'], float(data['price']), description, data['img_code'])
         await update_count_tovs_db(+1, 'category', data['target_category'], data['target_subcategory'])
-        photo = InputFile(f"files/{data['img_code']}.jpg")
-        await bot.send_photo(message.chat.id, photo=photo, caption=f"<b>💎 Категория:</b> <i>{data['target_category']}</i>\n<b>💎 Подкатегория:</b> <i>{data['target_subcategory']}</i>\n<b>💰 Цена:</b> <i>{data['price']} руб</i>\n<b>💚 Описание:</b> <i>{data['description']}</i>", parse_mode='html')
+        photo = InputFile(f"imgs/{data['img_code']}.jpg")
+        await bot.send_photo(message.chat.id, photo=photo, caption=f"<b>💎 Категория:</b> <i>{data['target_category']}</i>\n<b>💎 Подкатегория:</b> <i>{data['target_subcategory']}</i>\n<b>💰 Цена:</b> <i>{data['price']} руб</i>\n<b>💚 Описание:</b> <i>{description}</i>", parse_mode='html')
         await state.finish()
 async def del_tov(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
