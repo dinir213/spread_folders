@@ -183,14 +183,16 @@ async def add_tov(message: types.Message, state: FSMContext):
             positions = re.split("\s+|\n", message.text)
             if len(positions) % 3 == 0:
                 cycles = len(positions) / 3
-                result = ''
+                result = 'Вы добавили следующие товары товары:\n'
+                j = 0
                 for i in range(int(cycles)):
-                    print(data['target_subcategory'], positions[i+0], positions[i+1], positions[i+2], data['target_category'])
-
                     await add_position_db(data['target_subcategory'], positions[i+0], positions[i+1], positions[i+2], data['target_category'])
                     await update_count_tovs_db(+1, 'subcategory', data['target_category'], data['target_subcategory'])
-                    result = f'{result}Логин: {positions[i+0]}, Пароль: {positions[i+1]}, Резерв: {positions[i+2]}\n'
+                    result = f'{result}{j+1}. Логин: {positions[i+0]}, Пароль: {positions[i+1]}, Резерв: {positions[i+2]}\n'
                     i = i + 3
+                    j = j + 1
+                await message.answer(result)
+
                 await state.finish()
             else:
                 await message.answer('Введите значения еще раз, количество элементов должно быть кратно трём', reply_markup=inline_kb_add_del_tov_back)
