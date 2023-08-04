@@ -7,9 +7,10 @@ async def on_startup(_):
     start_db.db_start()
     print('Бот вышел в онлайн')
 
-from handlers import start_handler,  menu_collbacks, num_click_handler
+from handlers import start_handler,  menu_collbacks, num_click_handler, buy_handler
 start_handler.register_handlers_client(dp)
 menu_collbacks.register_handlers_client(dp)
+buy_handler.register_handlers_client(dp)
 num_click_handler.register_handlers_client(dp)
 from payment_process import payment_process
 payment_process.register_handlers_client(dp)

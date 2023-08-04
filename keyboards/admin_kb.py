@@ -43,5 +43,5 @@ async def print_all_categories(all_categories, code_data_base):
     if all_categories != []:
         flag = 1
         for category in all_categories:
-            inline_kb_all_categories.add(types.InlineKeyboardButton(text=category[0], callback_data=f'del₢{category[0]}₢{code_data_base}'))
+            inline_kb_all_categories.add(types.InlineKeyboardButton(text=category[0], callback_data=f'change₢{category[0]}₢{code_data_base}'))
     return [inline_kb_all_categories.add(inline_btn_add_del_tov_back), flag]

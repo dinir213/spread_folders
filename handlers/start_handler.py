@@ -5,7 +5,7 @@ from keyboards import menu_kb
 from data_base import start_db, profile_db
 # @dp.message_handler(commands=['start'])
 async def command_start(message: types.Message):
-    await bot.send_photo(message.from_user.id, photo=open("imgs/photo1.jpg", "rb"))
+    # await bot.send_photo(message.from_user.id, photo=open("imgs/photo1.jpg", "rb"))
     await bot.send_message(message.from_user.id, f'Добро пожаловать @{message.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
     await message.delete()
     await profile_db.create_profile(message)

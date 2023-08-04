@@ -20,7 +20,7 @@ async def del_category_db(category_name):
     subcategories_tables = cur.execute(f"SELECT subcategory_name FROM {category_name}").fetchall()
     if subcategories_tables != []:
         for subcategory in subcategories_tables:
-            cur.execute(f"DROP TABLE IF EXISTS {subcategory[0]}")
+            cur.execute("DROP TABLE IF EXISTS '{subcategory}'".format(subcategory=subcategory[0]))
             print(f'Удалена подкатегория {subcategory[0]} в категории {category_name}')
     cur.execute(f"DROP TABLE IF EXISTS {category_name}")
     db.commit()
@@ -40,7 +40,7 @@ async def del_subcategory_db(category_name, subcategory_name):
 
 async def view_all_position_db(subcategory_name):
     # print(f'Из таблицы категории товара {subcategory_name} хочу взять значение {cur.execute(f"SELECT key1 FROM {subcategory_name}").fetchall()}')
-    return cur.execute(f"SELECT * FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchall()
+    return cur.execute("SELECT * FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchall()
 
 async def add_position_db(subcategory_name, tov_position0, tov_position1, tov_position2, category_name):
     try:
@@ -70,3 +70,6 @@ async def update_count_tovs_db(value, tov_level, category_name, subcategory_name
         cur.execute("UPDATE '{category_name}' SET tov_count='{tov_count}' WHERE subcategory_name='{subcategory_name}'".format(category_name=category_name, tov_count=tov_count, subcategory_name=subcategory_name))
 
     db.commit()
+
+async def get_info_about_tov(category_name, subcategory_name):
+    return cur.execute("SELECT * FROM '{category_name}' WHERE subcategory_name='{subcategory_name}'".format(category_name=category_name, subcategory_name=subcategory_name)).fetchall()[0]

@@ -20,3 +20,17 @@ async def update_payment_values_in_menu_payment(call, payment_id_or_uuid, sign, 
 async def del_payment_values_in_menu_payment(call):
     cur.execute(f"DELETE FROM menu_payment WHERE msg_id={call.message.message_id}")
     db.commit()
+
+async def create_tov_menu_info(call):
+    cur.execute("INSERT OR IGNORE INTO tov_menu VALUES (?, ?, ?, ?, ?)", (call.message.message_id, call.from_user.id, '', '', ''))
+    db.commit()
+
+async def input_tov_menu_info(call, info, work_mode):
+    if work_mode == 'category':
+        cur.execute("UPDATE tov_menu SET category='{category}' WHERE msg_id='{msg_id}'".format(msg_id=call.message.message_id, category=info))
+    elif work_mode == 'subcategory':
+        cur.execute("UPDATE tov_menu SET subcategory='{subcategory}' WHERE msg_id='{msg_id}'".format(msg_id=call.message.message_id, subcategory=info))
+        return cur.execute("SELECT category FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id)).fetchall()[0][0]
+    elif work_mode == 'count_tov':
+        pass
+    db.commit()
