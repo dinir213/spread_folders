@@ -14,7 +14,7 @@ async def menu_support(call: types.CallbackQuery):
     await call.message.edit_text(f"По различным вопросам обращайтесь к @gilmanovdin", reply_markup=menu_kb.inline_kb_back_in_menu)
 
 async def menu_add_balance(call: types.CallbackQuery):
-    await call.message.edit_text(f"Для пополнения счета введите суммы, которую хотите пополнить:", reply_markup=(await kb_num_buttons()))
+    await call.message.edit_text(f"Для пополнения счета введите суммы, которую хотите пополнить:", reply_markup=(await kb_num_buttons('deposit')))
     await tov_or_paym_menu_db.input_value_amount_in_menu_payment(call)
 async def menu_buy_main(call: types.CallbackQuery):
     category_menu = await menu_kb.print_all_categories(await admin_db.view_all_categories_db(), 'category')
