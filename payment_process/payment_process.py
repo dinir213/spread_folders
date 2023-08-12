@@ -4,7 +4,7 @@ from data_base.profile_db import edit_profile
 from payment_process import payment_json_requests
 from keyboards.num_buttons import kb_check_payment_buttons
 from keyboards import menu_kb
-from create_bot import bot
+
 async def get_check(call: types.CallbackQuery):
     text = call.data.split('_')
     amount = await get_value_amount_in_menu_payment(call)
@@ -20,6 +20,7 @@ async def get_check(call: types.CallbackQuery):
             await update_payment_values_in_menu_payment(call, payment_url[1], '', '', text[1])
         elif text[1] == 'cryptomus':
             paym_data_crypto = await payment_json_requests.create_payment_cryptomus(amount)
+            print(paym_data_crypto)
             await call.message.edit_text(f"Перейдите по ссылке для оплаты {amount} RUB: {paym_data_crypto[0]}", reply_markup=(await kb_check_payment_buttons(text[1])))
             await update_payment_values_in_menu_payment(call, paym_data_crypto[1], paym_data_crypto[2], paym_data_crypto[3], text[1])
 async def confirm_payment(call: types.CallbackQuery):

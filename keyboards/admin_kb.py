@@ -4,8 +4,10 @@ from aiogram import types
 # Клавиатура для админ-панели:
 inline_btn_1_admin = InlineKeyboardButton('Способы оплаты', callback_data='add_payment_methods')
 inline_btn_2_admin = InlineKeyboardButton('Добавить товар', callback_data='add_del_tov')
+inline_btn_3_admin = InlineKeyboardButton('Процент за приглашение', callback_data='update_percent_referral')
+inline_btn_4_admin = InlineKeyboardButton('Технические работы', callback_data='update_work_mode')
 back_btn = InlineKeyboardButton('Назад', callback_data='back')
-inline_kb_admin = InlineKeyboardMarkup().add(inline_btn_1_admin).add(inline_btn_2_admin).add(back_btn)
+inline_kb_admin = InlineKeyboardMarkup().add(inline_btn_1_admin).add(inline_btn_2_admin).add(inline_btn_3_admin).add(inline_btn_4_admin).add(back_btn)
 
 # Клавиатура со способами оплаты:
 async def create_kb_payment_methods():
@@ -45,3 +47,11 @@ async def print_all_categories(all_categories, code_data_base):
         for category in all_categories:
             inline_kb_all_categories.add(types.InlineKeyboardButton(text=category[0], callback_data=f'change₢{category[0]}₢{code_data_base}'))
     return [inline_kb_all_categories.add(inline_btn_add_del_tov_back), flag]
+# Создание клавиатуры для включения/выключения бота во время технических работ
+async def markup_work_mode(mode):
+    markup = InlineKeyboardMarkup()
+    if mode == 0:
+        markup.add(types.InlineKeyboardButton(text="Включить 🔛",callback_data=f'click_update_work_mode'))
+    if mode == 1:
+        markup.add(types.InlineKeyboardButton(text="Выключить 📴",callback_data=f'click_update_work_mode'))
+    return markup.add(back_btn)

@@ -68,8 +68,23 @@ async def update_count_tovs_db(value, tov_level, category_name, subcategory_name
             tov_count = len(cur.execute("SELECT * FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchall())
             tov_count = str(tov_count)
         cur.execute("UPDATE '{category_name}' SET tov_count='{tov_count}' WHERE subcategory_name='{subcategory_name}'".format(category_name=category_name, tov_count=tov_count, subcategory_name=subcategory_name))
-
     db.commit()
-
+# Получение информации о конкретном товаре для его отображения клиентам
 async def get_info_about_tov(category_name, subcategory_name):
     return cur.execute("SELECT * FROM '{category_name}' WHERE subcategory_name='{subcategory_name}'".format(category_name=category_name, subcategory_name=subcategory_name)).fetchall()[0]
+
+# Реферальная система. Получение и изменение процента от рефераллов:
+async def get_percent_referral_db():
+    return cur.execute("SELECT percent_ref FROM percent_referral").fetchone()[0]
+async def update_percent_referral_db(new_percent):
+    cur.execute("DELETE FROM percent_referral")
+    cur.execute("INSERT INTO percent_referral VALUES (?)", (new_percent,))
+    db.commit()
+
+# Режим работы бота. Включен для неадминов или выключен
+async def get_work_mode_db():
+    return cur.execute("SELECT mode FROM work_bot").fetchone()[0]
+async def update_work_mode_db(mode):
+    cur.execute("DELETE FROM work_bot")
+    cur.execute("INSERT INTO work_bot VALUES (?)", (mode,))
+    db.commit()
