@@ -51,3 +51,5 @@ async def check_args(referer, user_id: int):
     else:
         return '0'
 
+async def get_all_users():
+    return cur.execute("SELECT user_id FROM profile").fetchall()

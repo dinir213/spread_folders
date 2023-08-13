@@ -77,7 +77,7 @@ async def confirm_payment(call: types.CallbackQuery):
             await del_payment_values_in_menu_payment(call)
     elif payment_method == 'back':
         await del_payment_values_in_menu_payment(call)
-        await call.message.edit_text(f'Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
+        await call.message.edit_text(f'Добро пожаловать, {call.from_user.first_name}! Спасибо, что выбрали наш магазин!\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
 
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(get_check, text_startswith="getcheck_")

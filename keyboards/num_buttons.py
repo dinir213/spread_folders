@@ -20,7 +20,6 @@ async def kb_num_buttons(callback_info):
             types.InlineKeyboardButton(text='CLEAR', callback_data='deposit:clear'))
         for i in all_payment_methods:
             if i[2] == '1':
-                print(f'{i[1]}')
                 inline_kb_num_buttons.add(types.InlineKeyboardButton(text=f'Оплата через {i[0]} ☑', callback_data=f'{i[1]}'))
         return inline_kb_num_buttons.add(InlineKeyboardButton(text='Назад', callback_data='back'))
     elif callback_info == 'tov_add_':

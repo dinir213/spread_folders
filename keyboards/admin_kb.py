@@ -6,8 +6,10 @@ inline_btn_1_admin = InlineKeyboardButton('Способы оплаты', callbac
 inline_btn_2_admin = InlineKeyboardButton('Добавить товар', callback_data='add_del_tov')
 inline_btn_3_admin = InlineKeyboardButton('Процент за приглашение', callback_data='update_percent_referral')
 inline_btn_4_admin = InlineKeyboardButton('Технические работы', callback_data='update_work_mode')
+inline_btn_5_admin = InlineKeyboardButton('Рассылка', callback_data='mailing')
+
 back_btn = InlineKeyboardButton('Назад', callback_data='back')
-inline_kb_admin = InlineKeyboardMarkup().add(inline_btn_1_admin).add(inline_btn_2_admin).add(inline_btn_3_admin).add(inline_btn_4_admin).add(back_btn)
+inline_kb_admin = InlineKeyboardMarkup().add(inline_btn_1_admin).add(inline_btn_2_admin).add(inline_btn_3_admin).add(inline_btn_4_admin).add(inline_btn_5_admin).add(back_btn)
 
 # Клавиатура со способами оплаты:
 async def create_kb_payment_methods():
@@ -55,3 +57,14 @@ async def markup_work_mode(mode):
     if mode == 1:
         markup.add(types.InlineKeyboardButton(text="Выключить 📴",callback_data=f'click_update_work_mode'))
     return markup.add(back_btn)
+
+# Рассылка. Создание клавиатуры для рассылки:
+async def markup_mailing():
+    return InlineKeyboardMarkup().add(
+        types.InlineKeyboardButton(text='Просто текст', callback_data='mailing₢text'),
+        types.InlineKeyboardButton(text='Текст с картинкой', callback_data='mailing₢photo_and_text'))\
+        .add(back_btn)
+async def markup_confirm_mailing():
+    return InlineKeyboardMarkup().add(
+        types.InlineKeyboardButton(text='Начать рассылку', callback_data='confirmmailing')
+    ).add(InlineKeyboardButton('Отмена', callback_data='back'))

@@ -3,7 +3,6 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from create_bot import dp
 from keyboards.num_buttons import kb_num_buttons
 from keyboards.menu_kb import print_all_categories, inline_kb_back_in_menu
 from data_base.admin_db import view_all_subcategories_db, get_info_about_tov

@@ -32,8 +32,10 @@ async def menu_buy_main(call: types.CallbackQuery):
 async def back_in_menu(call: types.CallbackQuery, state=FSMContext):
     if await state.get_data() != None:
         await state.finish()
-    await call.message.edit_text(f'Добро пожаловать, {call.from_user.first_name}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
-
+    try:
+        await call.message.edit_text(f'Добро пожаловать, {call.from_user.first_name}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
+    except:
+        await call.message.delete()
 
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(menu_profile, text=["profile"])

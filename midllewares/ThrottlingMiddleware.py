@@ -1,6 +1,4 @@
-
 from aiogram.dispatcher.middlewares import BaseMiddleware
-from aiogram.utils.exceptions import Throttled
 from aiogram.dispatcher.handler import CancelHandler, current_handler
 from aiogram import types
 from aiogram.types import CallbackQuery
