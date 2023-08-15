@@ -15,7 +15,6 @@ async def command_start_call(call: types.CallbackQuery):
     await del_tov_menu_info(call)
     await call.message.delete()
     await bot.send_message(call.from_user.id, f'Добро пожаловать, {call.from_user.first_name}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
-    # await message.delete()
 
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(command_start, commands=['start'])

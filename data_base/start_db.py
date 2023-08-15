@@ -16,10 +16,10 @@ def db_start():
     if cur.execute("SELECT * FROM payment_methods").fetchall() == []:
         cur.executemany("INSERT INTO payment_methods (payment_name, payment_callbackdata, work_mode) VALUES (?, ?, ?)", payment_methods)
     cur.execute("CREATE TABLE IF NOT EXISTS tov_categories(category_name TEXT PRIMARY KEY, tov_count TEXT)")
-
-    cur.execute("CREATE TABLE IF NOT EXISTS work_bot(mode INTEGER PRIMARY KEY)")
-    mode = [(1)]
-    if cur.execute("SELECT * FROM work_bot").fetchall() == []:
-        cur.execute("INSERT INTO work_bot (mode) VALUES (?)", mode)
+    try:
+        open('work_bot.txt')
+    except:
+        with open('work_bot.txt', 'w') as f:
+            f.write('1')
 
     db.commit()

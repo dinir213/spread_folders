@@ -42,13 +42,19 @@ async def view_all_position_db(subcategory_name):
     # print(f'Из таблицы категории товара {subcategory_name} хочу взять значение {cur.execute(f"SELECT key1 FROM {subcategory_name}").fetchall()}')
     return cur.execute("SELECT * FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchall()
 
-async def add_position_db(subcategory_name, tov_position0, tov_position1, tov_position2, category_name):
+async def add_position_db(subcategory_name, logins_parols, category_name):
     try:
         maxID = cur.execute("SELECT MAX(ID) FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchone()[0]
-        maxID = maxID + 1
+        maxID += 1
     except:
         maxID = 1
-    cur.execute("INSERT INTO '{subcategory_name}' VALUES (?, ?, ?, ?)".format(subcategory_name=subcategory_name), (maxID, tov_position0, tov_position1, tov_position2))
+    result = []
+    i = 0
+    for login_parol in logins_parols:
+        new_tuple = (maxID + i, login_parol[0], login_parol[1], login_parol[2])
+        result.append(new_tuple)
+        i += 1
+    cur.executemany("INSERT INTO '{subcategory_name}' VALUES (?, ?, ?, ?)".format(subcategory_name=subcategory_name), result)
     db.commit()
 
 async def del_position_db(subcategory_name, ID):
@@ -57,17 +63,29 @@ async def del_position_db(subcategory_name, ID):
     else:
         cur.execute("DELETE FROM '{subcategory_name}'".format(subcategory_name=subcategory_name))
     db.commit()
+async def sell_position_db(subcategory_name, count):
+    minID = cur.execute("SELECT MIN(ID) FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchone()[0]
+    result = ''
+    # Выбираем все строки сразу, чтобы избежать повторных запросов в цикле
+    rows = cur.execute(
+        "SELECT * FROM '{subcategory_name}' WHERE ID >= ? LIMIT ?".format(subcategory_name=subcategory_name),
+        (minID, count)).fetchall()
+    # Если есть строки, обрабатываем их
+    for i, row in enumerate(rows):
+        result += f'{i + 1}. Login: {row[1]}, password: {row[2]}, рез. поле: {row[3]}\n'
+    # Удаляем выбранные строки сразу в одном запросе
+    cur.execute("DELETE FROM '{subcategory_name}' WHERE ID >= ? AND ID < ?".format(subcategory_name=subcategory_name), (minID, minID + len(rows)))
+    # Коммитим изменения после выполнения всех операций
+    db.commit()
+    return result
+
 async def update_count_tovs_db(value, tov_level, category_name, subcategory_name=''):
     if tov_level == 'category':
-        tov_count = len(cur.execute("SELECT * FROM '{category_name}'".format(category_name=category_name)).fetchall())
-        cur.execute("UPDATE tov_categories SET tov_count='{tov_count}' WHERE category_name='{category_name}'".format(tov_count=tov_count, category_name=category_name))
+        tov_count = cur.execute("SELECT COUNT(*) FROM '{category_name}'".format(category_name=category_name)).fetchone()[0]
+        cur.execute("UPDATE tov_categories SET tov_count=? WHERE category_name=?", (tov_count, category_name))
     elif tov_level == 'subcategory':
-        if value == 'all':
-            tov_count = 0
-        else:
-            tov_count = len(cur.execute("SELECT * FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchall())
-            tov_count = str(tov_count)
-        cur.execute("UPDATE '{category_name}' SET tov_count='{tov_count}' WHERE subcategory_name='{subcategory_name}'".format(category_name=category_name, tov_count=tov_count, subcategory_name=subcategory_name))
+        tov_count = cur.execute("SELECT COUNT(*) FROM '{subcategory_name}'".format(subcategory_name=subcategory_name)).fetchone()[0]
+        cur.execute("UPDATE '{category_name}' SET tov_count=? WHERE subcategory_name=?".format(category_name=category_name), (tov_count, subcategory_name))
     db.commit()
 # Получение информации о конкретном товаре для его отображения клиентам
 async def get_info_about_tov(category_name, subcategory_name):
@@ -75,16 +93,16 @@ async def get_info_about_tov(category_name, subcategory_name):
 
 # Реферальная система. Получение и изменение процента от рефераллов:
 async def get_percent_referral_db():
-    return cur.execute("SELECT percent_ref FROM percent_referral").fetchone()[0]
+    return float(cur.execute("SELECT percent_ref FROM percent_referral").fetchone()[0])/100
 async def update_percent_referral_db(new_percent):
     cur.execute("DELETE FROM percent_referral")
     cur.execute("INSERT INTO percent_referral VALUES (?)", (new_percent,))
     db.commit()
 
 # Режим работы бота. Включен для неадминов или выключен
+
 async def get_work_mode_db():
-    return cur.execute("SELECT mode FROM work_bot").fetchone()[0]
+    return int(open("work_bot.txt", "r").read())
 async def update_work_mode_db(mode):
-    cur.execute("DELETE FROM work_bot")
-    cur.execute("INSERT INTO work_bot VALUES (?)", (mode,))
-    db.commit()
+    with open('work_bot.txt', 'w') as f:
+        f.write(str(mode))

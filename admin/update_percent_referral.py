@@ -19,6 +19,7 @@ async def update_percent_referral(message: types.Message, state: FSMContext):
     else:
         await bot.send_message(message.from_user.id, 'Вы ввели неверное значение', reply_markup=inline_kb_back_in_menu)
 
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(view_percent_referral, text=["update_percent_referral"])
     dp.register_message_handler(update_percent_referral, state=Referrals.percent_referral)

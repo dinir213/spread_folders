@@ -1,9 +1,12 @@
+import time
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from keyboards.admin_kb import inline_kb_add_del_tov, inline_kb_add_del_tov_back, print_all_categories
 from data_base.admin_db import add_category_db, del_category_db, view_all_categories_db, add_subcategory_db, del_subcategory_db, view_all_subcategories_db, add_position_db, view_all_position_db, del_position_db, update_count_tovs_db
+from Special_funcs.funcs import text_separation
 import re
 from create_bot import bot
 import secrets
@@ -156,14 +159,25 @@ async def add_tov(message: types.Message, state: FSMContext):
             if len(positions) % 3 == 0:
                 cycles = len(positions) / 3
                 result = 'Вы добавили следующие товары:\n'
+                i = 0
                 j = 0
-                for i in range(int(cycles)):
-                    await add_position_db(data['target_subcategory'], positions[i+0], positions[i+1], positions[i+2], data['target_category'])
-                    await update_count_tovs_db(+1, 'subcategory', data['target_category'], data['target_subcategory'])
-                    result = f'{result}{j+1}. Логин: {positions[i+0]}, Пароль: {positions[i+1]}, Резерв: {positions[i+2]}\n'
+                timestart = time.perf_counter()
+                data_for_bd = []
+                while j < cycles:
+                    # await add_position_db(data['target_subcategory'], positions[i], positions[i + 1], positions[i + 2] ,data['target_category'])
+                    data_append = (positions[i], positions[i + 1], positions[i + 2])
+                    print(data_append)
+                    data_for_bd.append(data_append)
+                    print(data_for_bd)
+                    result = f'{result}{j + 1}. Логин: {positions[i]}, Пароль: {positions[i + 1]}, Резерв: {positions[i + 2]}\n'
                     i = i + 3
                     j = j + 1
-                await message.answer(result,reply_markup=inline_kb_add_del_tov_back)
+                await add_position_db(data['target_subcategory'], data_for_bd, data['target_category'])
+
+                await update_count_tovs_db(+1, 'subcategory', data['target_category'], data['target_subcategory'])
+                await text_separation(message, result, inline_kb_add_del_tov_back)
+                idle = time.perf_counter() - timestart
+                print(idle)
                 await state.finish()
             else:
                 await message.answer('Введите значения еще раз, количество элементов должно быть кратно трём', reply_markup=inline_kb_add_del_tov_back)
@@ -172,9 +186,8 @@ async def add_tov_fill_photo(message: types.Message, state: FSMContext):
     N = 12
     img_code = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
                   for i in range(N))
-    async with state.proxy() as data:
-        await state.update_data({"img_code": img_code})
-        await message.photo[-1].download(destination_file=f'imgs/{img_code}.jpg')
+    await state.update_data({"img_code": img_code})
+    await message.photo[-1].download(destination_file=f'imgs/{img_code}.jpg')
     await message.answer('Теперь введи цену товара(если значение дробное, используйте ".", но не ",")', reply_markup=inline_kb_add_del_tov_back)
     await add_del_category.price.set()
 
@@ -200,16 +213,18 @@ async def del_tov(message: types.Message, state: FSMContext):
     need_lvl = (await state.get_data())['need_lvl']
     target_positions = message.text.split('_')
     if need_lvl == 3 and target_positions[0] == '/Delete':
+        timestart = time.perf_counter()
         target_subcategory = (await state.get_data())['target_subcategory']
         target_category = (await state.get_data())['target_category']
+        idle = time.perf_counter() - timestart
+        print(idle)
         try:
             target_positions[1] = int(target_positions[1])
             await del_position_db(target_subcategory, target_positions[1])
-            await update_count_tovs_db(-1, 'subcategory', target_category, target_subcategory)
         except:
             if target_positions[1] == 'all':
                 await del_position_db(target_subcategory, 'all')
-                await update_count_tovs_db('all', 'subcategory', target_category, target_subcategory)
+        await update_count_tovs_db(-1, 'subcategory', target_category, target_subcategory)
         await message.delete()
         all_positions_str = f'Позиции в категории {target_category} и в подкатегории {target_subcategory} успешно удалены Администратором {message.from_user.username} ✅! '
         await message.answer(all_positions_str, reply_markup=inline_kb_add_del_tov_back)

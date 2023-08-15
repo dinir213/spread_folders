@@ -1,29 +1,34 @@
 from create_bot import db, cur, bot
 async def create_profile(message, my_referer):
-    user = cur.execute("SELECT * FROM profile WHERE user_id == '{key}'".format(key=message.from_user.id)).fetchall()
+    user_id = message.from_user.id
+    username = message.from_user.username
+    user = cur.execute("SELECT * FROM profile WHERE user_id=?", (user_id,)).fetchall()
     if not user:
-        cur.execute(f"INSERT INTO profile VALUES (?, ?, ?, ?, ?)", (message.from_user.id, message.from_user.username, 0, my_referer, ''))
+        cur.execute("INSERT INTO profile VALUES (?, ?, ?, ?, ?)", (user_id, username, 0, my_referer, ''))
         if my_referer != '0':
-
-            if (cur.execute("SELECT my_referals FROM profile WHERE user_id=='{user_id}'".format(user_id=my_referer)).fetchone())[0] is not None:
-                other_referals = cur.execute("SELECT my_referals FROM profile WHERE user_id=='{user_id}'".format(user_id=my_referer)).fetchone()[0]
-                print(other_referals)
-                my_referals = str(message.from_user.id) + ',' + other_referals
-            else:
-                my_referals = message.from_user.id
-            await bot.send_message(my_referer, f'По вашей ссылке зарегистрирован пользователь с user_id: {message.from_user.id}, username: @{message.from_user.username}\n\nТеперь от каждой его покупки вы будете получать 5%')
-            cur.execute("UPDATE profile SET my_referals='{my_referals}' WHERE user_id='{my_referer}'".format(my_referer=my_referer, my_referals=my_referals))
+            my_referals = user_id
+            referer_row = cur.execute("SELECT my_referals FROM profile WHERE user_id=?", (my_referer,)).fetchone()
+            if referer_row[0] is not None:
+                other_referals = referer_row[0]
+                my_referals = f"{user_id},{other_referals}"
+            await bot.send_message(my_referer, f'По вашей ссылке зарегистрирован пользователь с user_id: {user_id}, username: @{username}\n\nТеперь от каждой его покупки вы будете получать 5%')
+            cur.execute("UPDATE profile SET my_referals=? WHERE user_id=?", (my_referals, my_referer))
         db.commit()
     else:
-        print(f'Ваш профиль уже зарегистрирован по ссылке от реферала с user_id: {user[0][3]}')
-
+        referer_id = user[0][3]
+        print(f'Ваш профиль уже зарегистрирован по ссылке от реферала с user_id: {referer_id}')
 async def get_profile(user_id):
-    # print(cur.execute(f"SELECT * FROM profile").fetchall())
     return cur.execute("SELECT * FROM profile WHERE user_id == '{key}'".format(key=user_id)).fetchone()
 async def edit_profile(call, amount):
-    last_balance = float(cur.execute("SELECT balance FROM profile WHERE user_id == '{key}'".format(key=call.from_user.id)).fetchall()[0][0])
+    if not isinstance(call, str):
+        user_id = call.from_user.id
+    else:
+        user_id = call
+        # Используем параметризованный запрос для извлечения последнего баланса
+    last_balance = cur.execute("SELECT balance FROM profile WHERE user_id=?", (user_id,)).fetchone()[0]
     new_balance = last_balance + float(amount)
-    cur.execute("UPDATE profile SET balance='{balance}' WHERE user_id='{user_id}'".format(user_id=call.from_user.id, balance=new_balance))
+    # Используем параметризованный запрос для обновления баланса
+    cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (new_balance, user_id))
     db.commit()
 # Работа с рефералами:
 

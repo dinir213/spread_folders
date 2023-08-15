@@ -11,7 +11,7 @@ async def menu_profile(call: types.CallbackQuery):
     else:
         count_referals = len((profile_data[4]).split(","))
     print(profile_data)
-    await call.message.edit_text(f'Ваш профиль:\n\nЮзер: @{call.from_user.username}\nID: {call.from_user.id}\nБаланс: {profile_data[2]} руб\nКоличество приглашенных: {count_referals}', reply_markup=menu_kb.inline_kb_back_in_menu)
+    await call.message.edit_text(f'Ваш профиль:\n\nЮзер: @{call.from_user.username}\nID: {call.from_user.id}\nБаланс: {profile_data[2]} руб\nКоличество приглашенных: {count_referals}\n\nРеферальная ссылка:\nhttps://t.me/kazino_oleg_bot?start={call.from_user.id}', reply_markup=menu_kb.inline_kb_back_in_menu)
 async def menu_faq(call: types.CallbackQuery):
     await call.message.edit_text(f"По различным вопросам обращайтесь к @gilmanovdin", reply_markup=menu_kb.inline_kb_back_in_menu)
 async def menu_support(call: types.CallbackQuery):

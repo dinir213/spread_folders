@@ -27,10 +27,10 @@ async def kb_num_buttons(callback_info):
             types.InlineKeyboardButton(text='Назад', callback_data='start'),
             types.InlineKeyboardButton(text='0', callback_data='tov_add_:0'),
             types.InlineKeyboardButton(text='CLEAR', callback_data='tov_add_:clear')).add(types.InlineKeyboardButton(text='КУПИТЬ', callback_data='view_confirm:'))
-
-inline_kb_confirm_buy = InlineKeyboardMarkup(row_width=2).add(
-    types.InlineKeyboardButton(text='❎ Отмена', callback_data='confirm_cancel_buy'),
-    types.InlineKeyboardButton(text='✅ Подтвердить', callback_data='confirm_accept_buy'))
+async def kb_confirm_buy_tov():
+    return InlineKeyboardMarkup(row_width=2).add(
+        types.InlineKeyboardButton(text='❎ Отмена', callback_data='start'),
+        types.InlineKeyboardButton(text='✅ Подтвердить', callback_data='confirm₢accept_buy'))
 
 
 async def kb_check_payment_buttons(payment_method):

@@ -77,7 +77,7 @@ async def confirm_and_start_mailing(call: types.CallbackQuery, state: FSMContext
         except:
             pass
     total_users = len(ids)
-    await bot.send_message(admin_id, f"Рассылка окончена\nНе получили рассылку след. USERы({count}/{total_users} юзеров не получили):\n\n{dontsend}")
+    await bot.send_message(call.from_user.id, f"Рассылка окончена\nНе получили рассылку след. USERы({count}/{total_users} юзеров не получили):\n\n{dontsend}")
     await state.finish()
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(mailing, text=["mailing"])
