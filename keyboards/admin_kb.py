@@ -47,7 +47,7 @@ async def print_all_categories(all_categories, code_data_base):
     if all_categories != []:
         flag = 1
         for category in all_categories:
-            inline_kb_all_categories.add(types.InlineKeyboardButton(text=category[0], callback_data=f'change₢{category[0]}₢{code_data_base}'))
+            inline_kb_all_categories.add(types.InlineKeyboardButton(text=category[0], callback_data=f'change~{category[0]}~{code_data_base}'))
     return [inline_kb_all_categories.add(inline_btn_add_del_tov_back), flag]
 # Создание клавиатуры для включения/выключения бота во время технических работ
 async def markup_work_mode(mode):
@@ -61,8 +61,8 @@ async def markup_work_mode(mode):
 # Рассылка. Создание клавиатуры для рассылки:
 async def markup_mailing():
     return InlineKeyboardMarkup().add(
-        types.InlineKeyboardButton(text='Просто текст', callback_data='mailing₢text'),
-        types.InlineKeyboardButton(text='Текст с картинкой', callback_data='mailing₢photo_and_text'))\
+        types.InlineKeyboardButton(text='Просто текст', callback_data='mailing~text'),
+        types.InlineKeyboardButton(text='Текст с картинкой', callback_data='mailing~photo_and_text'))\
         .add(back_btn)
 async def markup_confirm_mailing():
     return InlineKeyboardMarkup().add(

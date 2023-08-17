@@ -14,7 +14,7 @@ async def mailing(call: types.CallbackQuery):
     await call.message.edit_text('Выберите тип рассылки', reply_markup=(await markup_mailing()))
 
 async def mailing_get_mailing_msg(call: types.CallbackQuery, state: FSMContext):
-    chosen_btn = call.data.split('₢')
+    chosen_btn = call.data.split('~')
     async with state.proxy() as data:
         data['content'] = chosen_btn[1]
     if chosen_btn[1] == 'text':
@@ -81,7 +81,7 @@ async def confirm_and_start_mailing(call: types.CallbackQuery, state: FSMContext
     await state.finish()
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(mailing, text=["mailing"])
-    dp.register_callback_query_handler(mailing_get_mailing_msg, text_startswith=["mailing₢"])
+    dp.register_callback_query_handler(mailing_get_mailing_msg, text_startswith=["mailing~"])
     dp.register_message_handler(mailing_get_mailing_msg_phase2, content_types=["photo", "text"], state=Mailing.content)
     dp.register_callback_query_handler(confirm_and_start_mailing, text=["confirmmailing"], state=Mailing.text_mailing)
 

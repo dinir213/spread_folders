@@ -8,7 +8,9 @@ from data_base.tov_or_paym_menu_db import del_tov_menu_info
 async def command_start(message: types.Message):
     args = message.get_args() # /start 123123
     referer = await profile_db.check_args(args, message.from_user.id)
-    await bot.send_message(message.from_user.id, f'Добро пожаловать, {message.from_user.first_name}! Спасибо, что выбрали наш магазин!\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
+    photo_url = 'imgs/start.jpg'
+    with open(photo_url, 'rb') as photo_file:
+        await bot.send_photo(photo=photo_file, chat_id=message.from_user.id, caption=f'Добро пожаловать, {message.from_user.first_name}! Спасибо, что выбрали наш магазин!\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
     await message.delete()
     await profile_db.create_profile(message, referer)
 async def command_start_call(call: types.CallbackQuery):

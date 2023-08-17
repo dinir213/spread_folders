@@ -51,8 +51,10 @@ async def confirm_payment(call: types.CallbackQuery):
             except:
                 pass
         elif payment_status == 'succeeded':
+            await call.message.edit_text(f'Ваш баланс был успешно пополнен на {amount} руб\n\n')
+
             await call.answer('Успешно!')
-            await call.message.edit_text(f'Ваш баланс был успешно пополнен на {amount} руб\n\nДобро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
+            await call.message.answer(f'Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
             timestart = time.perf_counter()
             await work_with_bd(call, amount)
             idle = time.perf_counter() - timestart
@@ -73,9 +75,10 @@ async def confirm_payment(call: types.CallbackQuery):
             except:
                 pass
         elif payment_status == 'paid':
-            await call.message.edit_text(f'Ваш баланс был успешно пополнен на {amount} руб\n\nДобро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
+            await call.message.edit_text(f'Ваш баланс был успешно пополнен на {amount} руб\n\n')
             await call.answer('Successfully!')
             await work_with_bd(call, amount)
+            await call.message.answer(f'Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
         elif payment_status == 'cancel':
             await call.message.edit_text(f'Вы отменили платеж\n Добро пожаловать @{call.from_user.username}! Спасибо, что пользуетесь нашим магазином\n\nГлавное меню:', reply_markup=menu_kb.inline_kb_menu)
             await del_payment_values_in_menu_payment(call)

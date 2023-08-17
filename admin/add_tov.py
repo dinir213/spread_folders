@@ -55,12 +55,13 @@ async def add_del_tov(call: types.CallbackQuery, state: FSMContext):
         if data['need_lvl'] == 2 or data['need_lvl'] == 3:
             inline_kb_all_categories = await print_all_categories(await view_all_categories_db(), 'category')
             if inline_kb_all_categories[1] == 1:
+                print(f"Ошибочная клавиатура: {inline_kb_all_categories}")
                 await call.message.edit_text(f"Выберете название категории:\n", reply_markup=inline_kb_all_categories[0])
             else:
                 await call.message.edit_text(f"Вы пока не создали ни одну категорию товаров. Перед созданием/удалением подкатегории/позиции создайте категорию товаров\n", reply_markup=inline_kb_add_del_tov_back)
 
 async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
-    click_btn = call.data.split('₢')
+    click_btn = call.data.split('~')
     text = click_btn[1]
 
     async with state.proxy() as data:
@@ -85,12 +86,9 @@ async def choice_btn_in_tovs(call: types.CallbackQuery, state: FSMContext):
         if now_lvl == 1:
             if data['need_lvl'] == 1:
                 await del_category_db(target_category)
-
                 await call.message.edit_text(f'Категория {target_category} успешно удалена Администратором {call.from_user.username} ✅', reply_markup=inline_kb_add_del_tov_back)
             elif (data['need_lvl'] == 2 and data['need_action'] == 'add'):
                 await state.update_data({"now_lvl": 2})
-
-
             elif (data['need_lvl'] == 2 and data['need_action'] == 'del') or data['need_lvl'] == 3:
                 target_category = (await state.get_data())['target_category']
 
@@ -148,12 +146,21 @@ async def add_tov(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         text = message.text
         if data['need_lvl'] == 1:
-            await add_category_db(text)
-            await message.answer(f'Категория {text} создана Администратором {message.from_user.username} ✅',reply_markup=inline_kb_add_del_tov_back)
+            if len(text) <= 18:
+                await add_category_db(text)
+                await message.answer(f'Категория {text} создана Администратором {message.from_user.username} ✅',reply_markup=inline_kb_add_del_tov_back)
+                await state.finish()
+            else:
+                await message.answer(f"Количество символов в названии не должно превышать 18 символов\nВведите повторно:", reply_markup=inline_kb_add_del_tov_back)
         elif data['need_lvl'] == 2:
-            await state.update_data({"target_subcategory": message.text})
-            await message.answer('Теперь отправь фото товара', reply_markup=inline_kb_add_del_tov_back)
-            await add_del_category.img_code.set()
+            target_subcategory = text
+            if len(target_subcategory) <= 18:
+                await state.update_data({"target_subcategory": target_subcategory})
+                await message.answer('Теперь отправь фото товара', reply_markup=inline_kb_add_del_tov_back)
+                await add_del_category.img_code.set()
+            else:
+                await message.answer(f"Количество символов в названии не должно превышать 18 символов\nВведите повторно:", reply_markup=inline_kb_add_del_tov_back)
+
         elif data['need_lvl'] == 3:
             positions = re.split("\s+|\n", message.text)
             if len(positions) % 3 == 0:
@@ -235,7 +242,7 @@ async def del_tov(message: types.Message, state: FSMContext):
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(add_del_tov_main, text_startswith="add_del_tov", state='*')
     dp.register_callback_query_handler(add_del_tov, text_startswith="btn_")
-    dp.register_callback_query_handler(choice_btn_in_tovs, text_startswith="change₢", state="*")
+    dp.register_callback_query_handler(choice_btn_in_tovs, text_startswith="change~", state="*")
     dp.register_message_handler(add_tov, state=add_del_category.target_category)
     dp.register_message_handler(add_tov_fill_photo, state=add_del_category.img_code, content_types=['photo'])
     dp.register_message_handler(add_tov_fill_price, state=add_del_category.price)

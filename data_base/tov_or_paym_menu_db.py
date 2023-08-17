@@ -36,13 +36,15 @@ async def input_tov_menu_info(call, info, work_mode):
     db.commit()
 async def get_count_tov_menu_info(call):
     print(f'get {call.message.message_id}')
-    return cur.execute("SELECT * FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id-1)).fetchall()[0]
+    # Прошлая версия      return cur.execute("SELECT * FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id-1)).fetchall()[0]
+    return cur.execute("SELECT * FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id)).fetchall()[0]
 async def update_count_tov_menu_info(call, count_tov):
     print(f'update {call.message.message_id} {count_tov}')
-
-    cur.execute("UPDATE tov_menu SET count_tov='{count_tov}' WHERE msg_id='{msg_id}'".format(count_tov=count_tov, msg_id=call.message.message_id-1))
+    # Прошлая версия     cur.execute("UPDATE tov_menu SET count_tov='{count_tov}' WHERE msg_id='{msg_id}'".format(count_tov=count_tov, msg_id=call.message.message_id-1))
+    cur.execute("UPDATE tov_menu SET count_tov='{count_tov}' WHERE msg_id='{msg_id}'".format(count_tov=count_tov, msg_id=call.message.message_id ))
     db.commit()
 
 async def del_tov_menu_info(call):
-    cur.execute("DELETE FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id-1))
+    # Прошлая версия cur.execute("DELETE FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id-1))
+    cur.execute("DELETE FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id ))
     db.commit()
