@@ -16,7 +16,7 @@ async def menu_profile(call: types.CallbackQuery):
     else:
         count_referals = len((profile_data[4]).split(","))
     print(profile_data)
-    await call.message.edit_caption(f'Ваш профиль:\n\nЮзер: @{call.from_user.username}\nID: {call.from_user.id}\nБаланс: {profile_data[2]} руб\nКоличество приглашенных: {count_referals}\n\nРеферальная ссылка:\nhttps://t.me/kazino_oleg_bot?start={call.from_user.id}', reply_markup=menu_kb.inline_kb_back_in_menu)
+    await call.message.edit_caption(f'Ваш профиль:\n\nЮзер: @{call.from_user.username}\nID: {call.from_user.id}\nБаланс: {profile_data[2]} руб\nКоличество приглашенных: {count_referals}\n\nРеферальная ссылка:\nhttps://t.me/Openheimer_bot?start={call.from_user.id}', reply_markup=menu_kb.inline_kb_back_in_menu)
 async def menu_faq(call: types.CallbackQuery):
     await call.message.edit_caption(f"По различным вопросам обращайтесь к @gilmanovdin", reply_markup=menu_kb.inline_kb_back_in_menu)
     # nw_photo = 'https://blog.eldorado.ru/storage/publication/MWk3qOYojw6LEZDFtaDhWDTTrflixkdASgBDoR4T.jpeg'
@@ -24,10 +24,10 @@ async def menu_faq(call: types.CallbackQuery):
     with open(photo_url, 'rb') as photo_file:
         new_photo = types.InputMediaPhoto(media=photo_file)
         await bot.edit_message_media(media=new_photo, chat_id=call.message.chat.id, message_id=call.message.message_id)
-        await bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id, caption='По различным вопросам обращайтесь к @gilmanovdin', reply_markup=menu_kb.inline_kb_back_in_menu)
+        await bot.edit_message_caption(chat_id=call.message.chat.id, message_id=call.message.message_id, caption='По различным вопросам обращайтесь к @victor_buterin', reply_markup=menu_kb.inline_kb_back_in_menu)
 
 async def menu_support(call: types.CallbackQuery):
-    await call.message.edit_caption(f"По различным вопросам обращайтесь к @gilmanovdin", reply_markup=menu_kb.inline_kb_back_in_menu)
+    await call.message.edit_caption(f"По различным вопросам обращайтесь к @victor_buterin", reply_markup=menu_kb.inline_kb_back_in_menu)
 
 async def menu_add_balance(call: types.CallbackQuery):
     await call.message.edit_caption(f"Для пополнения счета введите суммы, которую хотите пополнить:", reply_markup=(await kb_num_buttons('deposit')))

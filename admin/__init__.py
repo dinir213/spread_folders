@@ -4,3 +4,4 @@ from admin import add_tov
 from admin import update_percent_referral
 from admin import update_work_mode
 from admin import mailing
+from admin import statistic

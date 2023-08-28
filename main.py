@@ -15,13 +15,14 @@ def register_all_handlers_client(dp):
     num_click_handler.register_handlers_client(dp)
     from payment_process import payment_process
     payment_process.register_handlers_client(dp)
-    from admin import admin_panel, add_payment_methods, add_tov, update_percent_referral, update_work_mode, mailing
+    from admin import admin_panel, add_payment_methods, add_tov, update_percent_referral, update_work_mode, mailing, statistic
     admin_panel.register_handlers_client(dp)
     add_payment_methods.register_handlers_client(dp)
     add_tov.register_handlers_client(dp)
     update_percent_referral.register_handlers_client(dp)
     update_work_mode.register_handlers_client(dp)
     mailing.register_handlers_client(dp)
+    statistic.register_handlers_client(dp)
 async def on_startup(_):
     start_db.db_start()
     print('Бот вышел в онлайн')

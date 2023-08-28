@@ -7,9 +7,10 @@ inline_btn_2_admin = InlineKeyboardButton('Добавить товар', callbac
 inline_btn_3_admin = InlineKeyboardButton('Процент за приглашение', callback_data='update_percent_referral')
 inline_btn_4_admin = InlineKeyboardButton('Технические работы', callback_data='update_work_mode')
 inline_btn_5_admin = InlineKeyboardButton('Рассылка', callback_data='mailing')
+inline_btn_6_admin = InlineKeyboardButton('Статистика', callback_data='statistic')
 
 back_btn = InlineKeyboardButton('Назад', callback_data='back')
-inline_kb_admin = InlineKeyboardMarkup().add(inline_btn_1_admin).add(inline_btn_2_admin).add(inline_btn_3_admin).add(inline_btn_4_admin).add(inline_btn_5_admin).add(back_btn)
+inline_kb_admin = InlineKeyboardMarkup().add(inline_btn_1_admin).add(inline_btn_2_admin).add(inline_btn_3_admin).add(inline_btn_4_admin).add(inline_btn_5_admin).add(inline_btn_6_admin).add(back_btn)
 
 # Клавиатура со способами оплаты:
 async def create_kb_payment_methods():

@@ -5,7 +5,7 @@ async def input_value_amount_in_menu_payment(call):
     db.commit()
 
 async def get_value_amount_in_menu_payment(call):
-    return cur.execute("SELECT value_amount FROM menu_payment WHERE msg_id == '{key}'".format(key=call.message.message_id)).fetchall()[0][0]
+    return cur.execute("SELECT value_amount FROM menu_payment WHERE msg_id == '{key}'".format(key=call.message.message_id)).fetchone()[0]
 
 async def get_payment_values_in_menu_payment(call):
     return cur.execute("SELECT * FROM menu_payment WHERE msg_id == '{key}'".format(key=call.message.message_id)).fetchall()[0]
@@ -37,6 +37,7 @@ async def input_tov_menu_info(call, info, work_mode):
 async def get_count_tov_menu_info(call):
     print(f'get {call.message.message_id}')
     # Прошлая версия      return cur.execute("SELECT * FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id-1)).fetchall()[0]
+
     return cur.execute("SELECT * FROM tov_menu WHERE msg_id == '{key}'".format(key=call.message.message_id)).fetchall()[0]
 async def update_count_tov_menu_info(call, count_tov):
     print(f'update {call.message.message_id} {count_tov}')

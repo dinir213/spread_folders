@@ -5,7 +5,7 @@ def db_start():
     cur.execute("CREATE TABLE IF NOT EXISTS menu_payment(msg_id TEXT PRIMARY KEY, value_amount TEXT, user_id TEXT, payment_id_or_uuid TEXT, sign TEXT, order_id TEXT, paym_method TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS tov_menu(msg_id INTEGER PRIMARY KEY, user_id TEXT, category TEXT, subcategory TEXT, count_tov TEXT)")
 
-    cur.execute("CREATE TABLE IF NOT EXISTS percent_referral(percent_ref INTEGER PRIMARY KEY)")
+    cur.execute("CREATE TABLE IF NOT EXISTS percent_referral(percent_ref REAL PRIMARY KEY)")
     percent_ref = [(5)]
     if cur.execute("SELECT * FROM percent_referral").fetchall() == []:
         cur.execute("INSERT INTO percent_referral (percent_ref) VALUES (?)", percent_ref)
@@ -22,4 +22,7 @@ def db_start():
         with open('work_bot.txt', 'w') as f:
             f.write('1')
 
+    # cur.execute("CREATE INDEX IF NOT EXISTS idx_category ON tov_menu (category)")
+    # cur.execute("CREATE INDEX IF NOT EXISTS idx_subcategory ON tov_menu (subcategory)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_count_tov ON tov_menu (msg_id, count_tov)")
     db.commit()

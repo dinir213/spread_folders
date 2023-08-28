@@ -1,3 +1,5 @@
+import asyncio
+
 import aiogram.utils.exceptions
 from aiogram import types, Dispatcher
 from os import remove
@@ -11,16 +13,16 @@ class Mailing(StatesGroup):
     content = State()
     text_mailing = State()
 async def mailing(call: types.CallbackQuery):
-    await call.message.edit_text('Выберите тип рассылки', reply_markup=(await markup_mailing()))
+    await call.message.edit_caption('Выберите тип рассылки', reply_markup=(await markup_mailing()))
 
 async def mailing_get_mailing_msg(call: types.CallbackQuery, state: FSMContext):
     chosen_btn = call.data.split('~')
     async with state.proxy() as data:
         data['content'] = chosen_btn[1]
     if chosen_btn[1] == 'text':
-        await call.message.edit_text('Введите текст для рассылки', reply_markup=inline_kb_back_in_menu)
+        await call.message.edit_caption('Введите текст для рассылки', reply_markup=inline_kb_back_in_menu)
     if chosen_btn[1] == 'photo_and_text':
-        await call.message.edit_text('Отправьте фото с описанием', reply_markup=inline_kb_back_in_menu)
+        await call.message.edit_caption('Отправьте фото с описанием', reply_markup=inline_kb_back_in_menu)
     await Mailing.content.set()
 async def mailing_get_mailing_msg_phase2(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -56,9 +58,13 @@ async def confirm_and_start_mailing(call: types.CallbackQuery, state: FSMContext
         for i in ids:
             try:
                 await bot.send_message(chat_id=i[0], parse_mode='html', text=text_mailing)
-            except (aiogram.utils.exceptions.CantInitiateConversation, aiogram.utils.exceptions.BotBlocked):
+            except (aiogram.utils.exceptions.CantInitiateConversation, aiogram.utils.exceptions.BotBlocked, aiogram.utils.exceptions.ChatNotFound):
                 dontsend = f'{dontsend} {i[0]};'
                 count = count + 1
+            except:
+                dontsend = f'{dontsend} {i[0]};'
+                count = count + 1
+            await asyncio.sleep(15e-3) # 5 ms sleep
         try:
             remove('mailing.txt')
         except:
@@ -68,9 +74,14 @@ async def confirm_and_start_mailing(call: types.CallbackQuery, state: FSMContext
         for i in ids:
             try:
                 await bot.send_photo(chat_id=i[0], photo=open("mailing.jpg", "rb"), caption=text_mailing, parse_mode='html')
-            except (aiogram.utils.exceptions.CantInitiateConversation, aiogram.utils.exceptions.BotBlocked):
+            except (aiogram.utils.exceptions.CantInitiateConversation, aiogram.utils.exceptions.BotBlocked, aiogram.utils.exceptions.ChatNotFound):
                 dontsend = f'{dontsend} {i[0]};'
                 count = count + 1
+            except:
+                dontsend = f'{dontsend} {i[0]};'
+                count = count + 1
+            await asyncio.sleep(15e-3) # 5 ms sleep
+
         try:
             remove("mailing.jpg")
             remove('mailing.txt')

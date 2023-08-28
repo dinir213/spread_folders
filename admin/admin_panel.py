@@ -1,7 +1,7 @@
 from keyboards import admin_kb
 from aiogram import types, Dispatcher
 async def menu_admin(call: types.CallbackQuery):
-    await call.message.edit_text(f"Меню Администратора\n\nВыберите:", reply_markup=admin_kb.inline_kb_admin)
+    await call.message.edit_caption(f"Меню Администратора\n\nВыберите:", reply_markup=admin_kb.inline_kb_admin)
 
 
 def register_handlers_client(dp: Dispatcher):

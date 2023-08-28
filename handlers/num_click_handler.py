@@ -1,3 +1,5 @@
+import time
+
 from aiogram import types, Dispatcher
 from data_base import tov_or_paym_menu_db
 from keyboards.num_buttons import kb_num_buttons, kb_confirm_buy_tov
@@ -28,32 +30,24 @@ async def click_handler(call: types.CallbackQuery, state: FSMContext):
         btn = await click_processing(btn, last_value)
         await bot.answer_callback_query(call.id)
         try:
-            await call.message.edit_text(f'Для пополнения счета введите суммы, которую хотите пополнить: {btn} руб', reply_markup=(await kb_num_buttons('deposit')))
+            await call.message.edit_caption(f'Для пополнения счета введите суммы, которую хотите пополнить: {btn} руб', reply_markup=(await kb_num_buttons('deposit')))
         except:
             pass
         await tov_or_paym_menu_db.update_value_amount_in_menu_payment(call, btn)
     elif flag == 'tov_add_':
-        # try:
         tov_menu_info = await tov_or_paym_menu_db.get_count_tov_menu_info(call)
-        # except:
-        #     await call.message.delete()
-        #     return 0
         btn = await click_processing(btn, tov_menu_info[4])
-
-        inline_kb_num_buttons = await kb_num_buttons("tov_add_")
         select_category = tov_menu_info[2]
         select_subcategory = tov_menu_info[3]
         await tov_or_paym_menu_db.update_count_tov_menu_info(call, btn)
         if btn == '':
             btn = 0
         info_tov = await get_info_about_tov(select_category, select_subcategory)
-        try:
+        timestart = time.time_ns()
+        await call.message.edit_caption(caption=f"<b>💎 Категория:</b> <i>{select_category}</i>\n<b>💎 Подкатегория:</b> <i>{select_subcategory}</i>\n<b>💰 Цена:</b> <i>{info_tov[2]} руб</i>\n<b>📀 На складе:</b> <i>{info_tov[1]} шт.</i>\n<b>💚 Описание:</b> <i>{info_tov[3]}</i>\n\n\n➖ПОКУПКА➖\nКоличество: {btn}\nСумма к списанию: {float(btn) * info_tov[2]}\n➖", parse_mode='html', reply_markup=(await kb_num_buttons("tov_add_")))
 
-            await call.message.edit_text(
-                f"<b>💎 Категория:</b> <i>{select_category}</i>\n<b>💎 Подкатегория:</b> <i>{select_subcategory}</i>\n<b>💰 Цена:</b> <i>{info_tov[2]} руб</i>\n<b>📀 На складе:</b> <i>{info_tov[1]} шт.</i>\n<b>💚 Описание:</b> <i>{info_tov[3]}</i>\n\n\n➖ПОКУПКА➖\nКоличество: {btn}\nСумма к списанию: {float(btn) * info_tov[2]}\n➖",
-                parse_mode='html', reply_markup=inline_kb_num_buttons)
-        except:
-            pass
+        print("Время обработки нажатий на кнопки при добавлении товара:", time.time_ns() - timestart)
+
         await bot.answer_callback_query(call.id)
     elif flag == 'view_confirm':
         tov_menu_info = await tov_or_paym_menu_db.get_count_tov_menu_info(call)
@@ -67,8 +61,7 @@ async def click_handler(call: types.CallbackQuery, state: FSMContext):
         elif int(tov_menu_info[4]) > int(info_tov[1]):
             await call.answer('Недостаточно товаров на складе')
         elif balance >= info_tov[2] * float(tov_menu_info[4]):
-            info_tov = await get_info_about_tov(select_category, select_subcategory)
-            await call.message.edit_text(f"<b>💎 Категория:</b> <i>{select_category}</i>\n<b>💎 Подкатегория:</b> <i>{select_subcategory}</i>\n<b>💰 Цена:</b> <i>{info_tov[2]} руб</i>\n<b>📀 На складе:</b> <i>{info_tov[1]} шт.</i>\n<b>💚 Описание:</b> <i>{info_tov[3]}</i>\n\n\n➖ПОКУПКА➖\nКоличество: {btn}\nСумма к списанию: {float(tov_menu_info[4]) * info_tov[2]}\n➖",parse_mode='html', reply_markup=(await kb_confirm_buy_tov()))
+            await call.message.edit_caption(f"<b>💎 Категория:</b> <i>{select_category}</i>\n<b>💎 Подкатегория:</b> <i>{select_subcategory}</i>\n<b>💰 Цена:</b> <i>{info_tov[2]} руб</i>\n<b>📀 На складе:</b> <i>{info_tov[1]} шт.</i>\n<b>💚 Описание:</b> <i>{info_tov[3]}</i>\n\n\n➖ПОКУПКА➖\nКоличество: {btn}\nСумма к списанию: {float(tov_menu_info[4]) * info_tov[2]}\n➖",parse_mode='html', reply_markup=(await kb_confirm_buy_tov()))
         else:
             await call.answer('Недостаточно баланса на счета')
 

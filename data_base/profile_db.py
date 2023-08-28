@@ -26,9 +26,8 @@ async def edit_profile(call, amount):
         user_id = call
         # Используем параметризованный запрос для извлечения последнего баланса
     last_balance = cur.execute("SELECT balance FROM profile WHERE user_id=?", (user_id,)).fetchone()[0]
-    new_balance = last_balance + float(amount)
     # Используем параметризованный запрос для обновления баланса
-    cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (new_balance, user_id))
+    cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (last_balance + float(amount), user_id))
     db.commit()
 # Работа с рефералами:
 
@@ -58,3 +57,5 @@ async def check_args(referer, user_id: int):
 
 async def get_all_users():
     return cur.execute("SELECT user_id FROM profile").fetchall()
+async def get_count_all_users():
+    return cur.execute("SELECT COUNT(*) FROM profile").fetchone()[0]
